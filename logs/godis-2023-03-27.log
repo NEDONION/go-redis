@@ -61,3 +61,13 @@
 [INFO][server.go:67] 2023/03/27 03:28:58 accept a new connection
 [INFO][echo_database.go:23] 2023/03/27 03:30:02 EchoDatabase AfterClientClose
 [INFO][handler.go:69] 2023/03/27 03:30:02 connection closed: 127.0.0.1:60054
+[INFO][server.go:35] 2023/03/27 03:33:20 start listening...
+[INFO][server.go:67] 2023/03/27 03:33:24 accept a new connection
+[ERROR][handler.go:76] 2023/03/27 03:33:48 empty payload
+[INFO][server.go:47] 2023/03/27 03:34:03 shutting down...
+[INFO][handler.go:98] 2023/03/27 03:34:03 handler shutting down...
+[INFO][echo_database.go:25] 2023/03/27 03:34:03 EchoDatabase Close
+[INFO][echo_database.go:21] 2023/03/27 03:34:03 EchoDatabase AfterClientClose
+[INFO][handler.go:61] 2023/03/27 03:34:03 connection closed: 127.0.0.1:60222
+[INFO][handler.go:98] 2023/03/27 03:34:03 handler shutting down...
+[INFO][echo_database.go:25] 2023/03/27 03:34:03 EchoDatabase Close
