@@ -11,10 +11,12 @@
 Download **PacketSender** in [https://github.com/dannagle/PacketSender](https://github.com/dannagle/PacketSender)
 
 ```bash
-# test tcp and parser
+# test tcp and parser with echo_database which only reply the same content
 address: 127.0.0.1
 port: 6380
 content: *3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n
+
+// output:*3\r\n$3\r\nSET\r\n$3\r\nkey\r\n$5\r\nvalue\r\n
 ```
 
 ![](https://raw.githubusercontent.com/NEDONION/my-pics-space/main/20230327181957.png)
