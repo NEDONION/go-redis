@@ -13,6 +13,7 @@ type Database interface {
 }
 
 // DataEntity stores data bound to a key, including a string, list, hash, set and so on
+// 存储数据的结构体
 type DataEntity struct {
 	Data interface{}
 }
