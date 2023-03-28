@@ -29,7 +29,10 @@ type RespHandler struct {
 // MakeHandler creates a RespHandler instance
 func MakeHandler() *RespHandler {
 	var db databaseface.Database
-	db = database.NewEchoDatabase()
+	// 创建一个 EchoDatabase 实例，用于测试
+	//db = database.NewEchoDatabase()
+	// 创建一个真正的数据库实例
+	db = database.NewDatabase()
 	return &RespHandler{
 		db: db,
 	}
