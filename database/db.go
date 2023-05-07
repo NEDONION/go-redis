@@ -12,7 +12,8 @@ import (
 type DB struct {
 	index int // 用于标识数据库的索引
 	// key -> DataEntity
-	data dict.Dict
+	data   dict.Dict
+	addAof func(CmdLine)
 }
 
 // ExecFunc is interface for command executor. 执行命令的函数
