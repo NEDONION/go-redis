@@ -12,15 +12,16 @@ import (
 	"strings"
 )
 
-// Database is a set of multiple database set
-type Database struct {
-	dbSet      []*DB
-	aofHandler *aof.AofHandler // handle aof persistence
+// StandaloneDatabase is a set of multiple database set
+type StandaloneDatabase struct {
+	dbSet []*DB
+	// handle aof persistence
+	aofHandler *aof.AofHandler
 }
 
-// NewDatabase creates a redis database
-func NewDatabase() *Database {
-	mdb := &Database{}
+// NewStandaloneDatabase creates a redis database,
+func NewStandaloneDatabase() *StandaloneDatabase {
+	mdb := &StandaloneDatabase{}
 	if config.Properties.Databases == 0 {
 		config.Properties.Databases = 16
 	}
@@ -30,7 +31,6 @@ func NewDatabase() *Database {
 		singleDB.index = i
 		mdb.dbSet[i] = singleDB
 	}
-
 	if config.Properties.AppendOnly {
 		aofHandler, err := aof.NewAOFHandler(mdb)
 		if err != nil {
@@ -45,16 +45,17 @@ func NewDatabase() *Database {
 			}
 		}
 	}
-
 	return mdb
 }
 
 // Exec executes command
 // parameter `cmdLine` contains command and its arguments, for example: "set key value"
-func (mdb *Database) Exec(c resp.Connection, cmdLine [][]byte) (result resp.Reply) {
+func (mdb *StandaloneDatabase) Exec(c resp.Connection, cmdLine [][]byte) (result resp.Reply) {
+
 	defer func() {
 		if err := recover(); err != nil {
 			logger.Warn(fmt.Sprintf("error occurs: %v\n%s", err, string(debug.Stack())))
+			result = &reply.UnknownErrReply{}
 		}
 	}()
 
@@ -75,14 +76,14 @@ func (mdb *Database) Exec(c resp.Connection, cmdLine [][]byte) (result resp.Repl
 }
 
 // Close graceful shutdown database
-func (mdb *Database) Close() {
+func (mdb *StandaloneDatabase) Close() {
 
 }
 
-func (mdb *Database) AfterClientClose(c resp.Connection) {
+func (mdb *StandaloneDatabase) AfterClientClose(c resp.Connection) {
 }
 
-func execSelect(c resp.Connection, mdb *Database, args [][]byte) resp.Reply {
+func execSelect(c resp.Connection, mdb *StandaloneDatabase, args [][]byte) resp.Reply {
 	dbIndex, err := strconv.Atoi(string(args[0]))
 	if err != nil {
 		return reply.MakeErrReply("ERR invalid DB index")

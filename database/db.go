@@ -1,3 +1,4 @@
+// Package database is a memory database with redis compatible interface
 package database
 
 import (
@@ -10,13 +11,13 @@ import (
 
 // DB stores data and execute user's commands
 type DB struct {
-	index int // 用于标识数据库的索引
+	index int
 	// key -> DataEntity
 	data   dict.Dict
 	addAof func(CmdLine)
 }
 
-// ExecFunc is interface for command executor. 执行命令的函数
+// ExecFunc is interface for command executor
 // args don't include cmd line
 type ExecFunc func(db *DB, args [][]byte) resp.Reply
 
@@ -26,7 +27,8 @@ type CmdLine = [][]byte
 // makeDB create DB instance
 func makeDB() *DB {
 	db := &DB{
-		data: dict.MakeSyncDict(),
+		data:   dict.MakeSyncDict(),
+		addAof: func(line CmdLine) {},
 	}
 	return db
 }
@@ -46,7 +48,6 @@ func (db *DB) Exec(c resp.Connection, cmdLine [][]byte) resp.Reply {
 	return fun(db, cmdLine[1:])
 }
 
-// 校验命令的参数个数是否正确
 func validateArity(arity int, cmdArgs [][]byte) bool {
 	argNum := len(cmdArgs)
 	if arity >= 0 {
@@ -104,5 +105,4 @@ func (db *DB) Removes(keys ...string) (deleted int) {
 // Flush clean database
 func (db *DB) Flush() {
 	db.data.Clear()
-
 }

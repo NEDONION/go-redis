@@ -94,6 +94,7 @@ func execSetNX(db *DB, args [][]byte) resp.Reply {
 		Data: value,
 	}
 	result := db.PutIfAbsent(key, entity)
+	db.addAof(utils.ToCmdLine2("setnx", args...))
 	return reply.MakeIntReply(int64(result))
 }
 
@@ -174,17 +175,19 @@ func execMSetNX(db *DB, args [][]byte) resp.Reply {
 }
 
 // execGetSet sets value of a string-type key and returns its old value
-// 将给定 key 的值设为 value ，并返回 key 的旧值(old value)。
 func execGetSet(db *DB, args [][]byte) resp.Reply {
 	key := string(args[0])
 	value := args[1]
 
-	entity, exists := db.GetEntity(key)
-	db.PutEntity(key, &database.DataEntity{Data: value})
-	if !exists {
-		return reply.MakeNullBulkReply()
+	old, err := db.getAsString(key)
+	if err != nil {
+		return err
 	}
-	old := entity.Data.([]byte)
+	db.PutEntity(key, &database.DataEntity{Data: value})
+	if old == nil {
+		return new(reply.NullBulkReply)
+	}
+	db.addAof(utils.ToCmdLine2("getset", args...))
 	return reply.MakeBulkReply(old)
 }
 
@@ -306,15 +309,16 @@ func execDecrBy(db *DB, args [][]byte) resp.Reply {
 }
 
 // execStrLen returns len of string value bound to the given key
-// 返回 key 所储存的字符串值的长度。当 key 储存的不是字符串值时，返回一个错误。
 func execStrLen(db *DB, args [][]byte) resp.Reply {
 	key := string(args[0])
-	entity, exists := db.GetEntity(key)
-	if !exists {
-		return reply.MakeNullBulkReply()
+	bytes, err := db.getAsString(key)
+	if err != nil {
+		return err
 	}
-	old := entity.Data.([]byte)
-	return reply.MakeIntReply(int64(len(old)))
+	if bytes == nil {
+		return reply.MakeIntReply(0)
+	}
+	return reply.MakeIntReply(int64(len(bytes)))
 }
 
 // execAppend sets string value to the given key

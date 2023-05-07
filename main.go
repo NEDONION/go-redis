@@ -13,7 +13,7 @@ const configFile string = "redis.conf"
 
 var defaultProperties = &config.ServerProperties{
 	Bind: "0.0.0.0",
-	Port: 6380,
+	Port: 6379,
 }
 
 func fileExists(filename string) bool {

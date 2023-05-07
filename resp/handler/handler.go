@@ -2,6 +2,8 @@ package handler
 
 import (
 	"context"
+	"go-redis/cluster"
+	"go-redis/config"
 	"go-redis/database"
 	databaseface "go-redis/interface/database"
 	"go-redis/lib/logger"
@@ -32,7 +34,13 @@ func MakeHandler() *RespHandler {
 	// 创建一个 EchoDatabase 实例，用于测试
 	//db = database.NewEchoDatabase()
 	// 创建一个真正的数据库实例
-	db = database.NewDatabase()
+	// 判断并测试 cluster database
+	if config.Properties.Self != "" &&
+		len(config.Properties.Peers) > 0 {
+		db = cluster.MakeClusterDatabase()
+	} else {
+		db = database.NewStandaloneDatabase()
+	}
 	return &RespHandler{
 		db: db,
 	}

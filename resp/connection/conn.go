@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"bytes"
 	"go-redis/lib/sync/wait"
 	"net"
 	"sync"
@@ -9,14 +10,16 @@ import (
 
 // Connection represents a connection with a redis-cli
 type Connection struct {
-	conn         net.Conn   // 客户端连接
-	waitingReply wait.Wait  // 等待回复完成
-	mu           sync.Mutex // 处理发送回复时的互斥锁
-	selectedDB   int        // 选择的数据库
+	conn net.Conn
+	// waiting until reply finished
+	waitingReply wait.Wait
+	// lock while handler sending response
+	mu sync.Mutex
+	// selected db
+	selectedDB int
 }
 
 func NewConn(conn net.Conn) *Connection {
-	// 返回指向Connection的指针
 	return &Connection{
 		conn: conn,
 	}
@@ -35,7 +38,6 @@ func (c *Connection) Close() error {
 }
 
 // Write sends response to client over tcp connection
-// 发送回复给客户端
 func (c *Connection) Write(b []byte) error {
 	if len(b) == 0 {
 		return nil
@@ -59,4 +61,26 @@ func (c *Connection) GetDBIndex() int {
 // SelectDB selects a database
 func (c *Connection) SelectDB(dbNum int) {
 	c.selectedDB = dbNum
+}
+
+// FakeConn implements redis.Connection for test
+type FakeConn struct {
+	Connection
+	buf bytes.Buffer
+}
+
+// Write writes data to buffer
+func (c *FakeConn) Write(b []byte) error {
+	c.buf.Write(b)
+	return nil
+}
+
+// Clean resets the buffer
+func (c *FakeConn) Clean() {
+	c.buf.Reset()
+}
+
+// Bytes returns written data
+func (c *FakeConn) Bytes() []byte {
+	return c.buf.Bytes()
 }
